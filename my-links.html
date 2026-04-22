@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="My Links">
+<meta name="theme-color" content="#f7f4ef">
+<link rel="manifest" href="manifest.json">
+<title>My Links</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f7f4ef;
+    --white: #ffffff;
+    --text: #2c2c2c;
+    --muted: #888;
+    --border: #e5e0d8;
+    --shadow: 0 2px 12px rgba(0,0,0,0.08);
+    --shadow-lg: 0 4px 24px rgba(0,0,0,0.12);
+
+    --recipe: #e8523a;
+    --recipe-light: #fdf0ee;
+    --recipe-border: #f5c4bc;
+
+    --workout: #3a8fe8;
+    --workout-light: #eef4fd;
+    --workout-border: #bcd4f5;
+
+    --sewing: #9b59b6;
+    --sewing-light: #f5eefb;
+    --sewing-border: #d9bcf0;
+
+    --other: #27ae60;
+    --other-light: #edf8f2;
+    --other-border: #b8e6ce;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  .app {
+    max-width: 480px;
+    margin: 0 auto;
+    padding-bottom: 120px;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--white);
+    padding: 40px 20px 20px;
+    border-bottom: 2px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    box-shadow: var(--shadow);
+  }
+
+  .header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  header h1 {
+    font-size: 1.9rem;
+    font-weight: 900;
+    color: var(--text);
+    line-height: 1;
+  }
+
+  header h1 span { color: #e8523a; }
+
+  .link-count {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--muted);
+    background: var(--bg);
+    padding: 4px 12px;
+    border-radius: 100px;
+    border: 1px solid var(--border);
+  }
+
+  /* SEARCH */
+  .search-wrap {
+    position: relative;
+    margin-bottom: 12px;
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1rem;
+    color: var(--muted);
+    pointer-events: none;
+  }
+
+  .search-input {
+    width: 100%;
+    padding: 13px 16px 13px 42px;
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text);
+    background: var(--bg);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .search-input:focus { border-color: #e8523a; background: var(--white); }
+  .search-input::placeholder { color: var(--muted); font-weight: 400; }
+
+  /* CATEGORY FILTER PILLS */
+  .cat-pills {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 2px;
+    scrollbar-width: none;
+  }
+
+  .cat-pills::-webkit-scrollbar { display: none; }
+
+  .cat-pill {
+    flex-shrink: 0;
+    padding: 7px 16px;
+    border-radius: 100px;
+    border: 2px solid var(--border);
+    background: var(--white);
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .cat-pill:hover { border-color: #ccc; color: var(--text); }
+  .cat-pill.active-all { background: var(--text); color: white; border-color: var(--text); }
+  .cat-pill.active-recipe { background: var(--recipe); color: white; border-color: var(--recipe); }
+  .cat-pill.active-workout { background: var(--workout); color: white; border-color: var(--workout); }
+  .cat-pill.active-sewing { background: var(--sewing); color: white; border-color: var(--sewing); }
+  .cat-pill.active-other { background: var(--other); color: white; border-color: var(--other); }
+
+  /* MAIN CONTENT */
+  .content { padding: 20px; }
+
+  /* ADD BUTTON — big and obvious */
+  .add-btn {
+    width: 100%;
+    padding: 18px;
+    background: #e8523a;
+    color: white;
+    border: none;
+    border-radius: 16px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 16px rgba(232,82,58,0.35);
+    transition: all 0.2s;
+    letter-spacing: 0.01em;
+  }
+
+  .add-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(232,82,58,0.45); }
+  .add-btn:active { transform: translateY(0); }
+  .add-btn .plus { font-size: 1.5rem; font-weight: 400; line-height: 1; }
+
+  /* SECTION HEADERS */
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    margin-top: 4px;
+  }
+
+  .section-emoji { font-size: 1.3rem; }
+
+  .section-title {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--text);
+  }
+
+  .section-count {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--muted);
+    background: var(--border);
+    padding: 2px 8px;
+    border-radius: 100px;
+  }
+
+  /* LINK CARDS */
+  .links-group { margin-bottom: 28px; }
+
+  .link-card {
+    background: var(--white);
+    border: 2px solid var(--border);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    box-shadow: var(--shadow);
+    transition: all 0.2s;
+    animation: popIn 0.25s ease both;
+    position: relative;
+  }
+
+  @keyframes popIn {
+    from { opacity: 0; transform: scale(0.97) translateY(8px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .link-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-1px); }
+
+  .link-card.recipe { border-left: 5px solid var(--recipe); }
+  .link-card.workout { border-left: 5px solid var(--workout); }
+  .link-card.sewing { border-left: 5px solid var(--sewing); }
+  .link-card.other { border-left: 5px solid var(--other); }
+
+  .link-cat-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    flex-shrink: 0;
+  }
+
+  .link-cat-icon.recipe { background: var(--recipe-light); }
+  .link-cat-icon.workout { background: var(--workout-light); }
+  .link-cat-icon.sewing { background: var(--sewing-light); }
+  .link-cat-icon.other { background: var(--other-light); }
+
+  .link-body { flex: 1; min-width: 0; }
+
+  .link-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+    line-height: 1.3;
+    word-break: break-word;
+  }
+
+  .link-url {
+    font-size: 0.75rem;
+    color: var(--muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 10px;
+  }
+
+  .link-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .btn-open {
+    flex: 1;
+    padding: 9px 14px;
+    border-radius: 10px;
+    border: none;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+  }
+
+  .btn-open.recipe { background: var(--recipe-light); color: var(--recipe); border: 1.5px solid var(--recipe-border); }
+  .btn-open.workout { background: var(--workout-light); color: var(--workout); border: 1.5px solid var(--workout-border); }
+  .btn-open.sewing { background: var(--sewing-light); color: var(--sewing); border: 1.5px solid var(--sewing-border); }
+  .btn-open.other { background: var(--other-light); color: var(--other); border: 1.5px solid var(--other-border); }
+  .btn-open:hover { filter: brightness(0.95); }
+
+  .btn-delete {
+    padding: 9px 12px;
+    background: #fff0ee;
+    border: 1.5px solid #f5c4bc;
+    border-radius: 10px;
+    color: #e8523a;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: 'Nunito', sans-serif;
+  }
+
+  .btn-delete:hover { background: #fde0dc; }
+
+  /* EMPTY STATE */
+  .empty-state {
+    text-align: center;
+    padding: 48px 20px;
+  }
+
+  .empty-emoji { font-size: 3rem; margin-bottom: 14px; display: block; }
+  .empty-title { font-size: 1.1rem; font-weight: 800; color: var(--text); margin-bottom: 6px; }
+  .empty-sub { font-size: 0.9rem; color: var(--muted); line-height: 1.6; }
+
+  /* MODAL */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 50;
+    display: none;
+    align-items: flex-end;
+    justify-content: center;
+    backdrop-filter: blur(3px);
+  }
+
+  .modal-backdrop.open { display: flex; }
+
+  .modal {
+    background: var(--white);
+    border-radius: 24px 24px 0 0;
+    padding: 20px 20px 48px;
+    width: 100%;
+    max-width: 480px;
+    animation: slideUp 0.3s ease;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  @keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+
+  .modal-handle {
+    width: 40px; height: 5px;
+    background: var(--border);
+    border-radius: 3px;
+    margin: 0 auto 20px;
+  }
+
+  .modal-title {
+    font-size: 1.4rem;
+    font-weight: 900;
+    margin-bottom: 20px;
+    color: var(--text);
+  }
+
+  /* FORM */
+  .form-row { margin-bottom: 16px; }
+
+  .form-label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+
+  .form-label .form-sublabel {
+    font-weight: 400;
+    color: var(--muted);
+    font-size: 0.8rem;
+  }
+
+  .form-input {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s;
+    background: var(--white);
+  }
+
+  .form-input:focus { border-color: #e8523a; }
+  .form-input::placeholder { color: #bbb; font-weight: 400; }
+
+  /* PASTE HELPER */
+  .paste-hint {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-top: 6px;
+    font-weight: 600;
+  }
+
+  /* CATEGORY PICKER */
+  .cat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .cat-pick-btn {
+    padding: 14px 12px;
+    border-radius: 14px;
+    border: 2px solid var(--border);
+    background: var(--white);
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text);
+  }
+
+  .cat-pick-btn .cat-emoji { font-size: 1.3rem; }
+  .cat-pick-btn:hover { border-color: #ccc; }
+  .cat-pick-btn.selected-recipe { background: var(--recipe-light); border-color: var(--recipe); color: var(--recipe); }
+  .cat-pick-btn.selected-workout { background: var(--workout-light); border-color: var(--workout); color: var(--workout); }
+  .cat-pick-btn.selected-sewing { background: var(--sewing-light); border-color: var(--sewing); color: var(--sewing); }
+  .cat-pick-btn.selected-other { background: var(--other-light); border-color: var(--other); color: var(--other); }
+
+  /* ADD CUSTOM CATEGORY */
+  .add-cat-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+    grid-column: span 2;
+  }
+
+  .add-cat-input {
+    flex: 1;
+    padding: 12px 14px;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .add-cat-input:focus { border-color: var(--other); }
+
+  .add-cat-btn {
+    padding: 12px 16px;
+    background: var(--other-light);
+    border: 2px solid var(--other-border);
+    border-radius: 12px;
+    color: var(--other);
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .add-cat-btn:hover { background: #d5f5e3; }
+
+  /* SAVE BUTTON */
+  .btn-save-link {
+    width: 100%;
+    padding: 17px;
+    background: #e8523a;
+    color: white;
+    border: none;
+    border-radius: 14px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 8px;
+    box-shadow: 0 4px 16px rgba(232,82,58,0.3);
+  }
+
+  .btn-save-link:hover { transform: translateY(-1px); }
+
+  .btn-cancel-link {
+    width: 100%;
+    padding: 14px;
+    background: none;
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--muted);
+    cursor: pointer;
+    margin-top: 10px;
+    transition: all 0.2s;
+  }
+
+  .btn-cancel-link:hover { border-color: #ccc; color: var(--text); }
+
+  /* LOADING INDICATOR */
+  .loading-indicator {
+    font-size: 0.8rem;
+    color: var(--muted);
+    font-weight: 600;
+    margin-top: 6px;
+    display: none;
+  }
+
+  .loading-indicator.show { display: block; }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(10px);
+    background: var(--text);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 100px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    opacity: 0;
+    transition: all 0.25s;
+    z-index: 200;
+    pointer-events: none;
+    white-space: nowrap;
+    font-family: 'Nunito', sans-serif;
+  }
+
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="header-top">
+      <h1>My <span>Links</span> 🔗</h1>
+      <div class="link-count" id="link-count">0 saved</div>
+    </div>
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="search" class="search-input" id="search" placeholder="Search your links…" oninput="renderLinks()">
+    </div>
+    <div class="cat-pills" id="cat-pills"></div>
+  </header>
+
+  <div class="content">
+    <button class="add-btn" onclick="openModal()">
+      <span class="plus">+</span> Save a New Link
+    </button>
+    <div id="links-container"></div>
+  </div>
+</div>
+
+<!-- ADD LINK MODAL -->
+<div class="modal-backdrop" id="modal" onclick="closeOnBackdrop(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Save a New Link 🔗</div>
+
+    <div class="form-row">
+      <label class="form-label">Paste your link here <span class="form-sublabel">(required)</span></label>
+      <input type="url" class="form-input" id="link-url" placeholder="https://www.facebook.com/…"
+        oninput="onUrlChange()" inputmode="url" autocomplete="off" autocorrect="off">
+      <div class="loading-indicator" id="loading-indicator">✨ Grabbing the title…</div>
+      <div class="paste-hint">Tip: copy the link from Facebook, then paste it here</div>
+    </div>
+
+    <div class="form-row">
+      <label class="form-label">Give it a name <span class="form-sublabel">(so you know what it is!)</span></label>
+      <input type="text" class="form-input" id="link-title" placeholder="e.g. Grandma's Butter Chicken Recipe">
+    </div>
+
+    <div class="form-row">
+      <label class="form-label">What kind of link is it?</label>
+      <div class="cat-grid" id="cat-grid"></div>
+    </div>
+
+    <button class="btn-save-link" onclick="saveLink()">✅ Save This Link</button>
+    <button class="btn-cancel-link" onclick="closeModal()">Cancel</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── STATE ────────────────────────────────────────────────────────────────────
+let links = JSON.parse(localStorage.getItem('mylinks-data') || '[]');
+let categories = JSON.parse(localStorage.getItem('mylinks-cats') || '["Recipes","Workouts","Sewing"]');
+let activeFilter = 'all';
+let selectedCat = null;
+let urlTimer = null;
+
+const CAT_CONFIG = {
+  'Recipes':  { emoji: '🍳', color: 'recipe' },
+  'Workouts': { emoji: '💪', color: 'workout' },
+  'Sewing':   { emoji: '🧵', color: 'sewing' },
+};
+
+function getCatConfig(cat) {
+  return CAT_CONFIG[cat] || { emoji: '📌', color: 'other' };
+}
+
+function saveData() {
+  localStorage.setItem('mylinks-data', JSON.stringify(links));
+  localStorage.setItem('mylinks-cats', JSON.stringify(categories));
+}
+
+// ─── CATEGORY PILLS ───────────────────────────────────────────────────────────
+function renderCatPills() {
+  const container = document.getElementById('cat-pills');
+  const all = ['all', ...categories];
+  container.innerHTML = all.map(c => {
+    const cfg = c === 'all' ? { emoji: '', color: 'all' } : getCatConfig(c);
+    const isActive = activeFilter === c;
+    const label = c === 'all' ? '✨ All' : `${cfg.emoji} ${c}`;
+    return `<button class="cat-pill ${isActive ? 'active-' + cfg.color : ''}" onclick="setFilter('${c}')">${label}</button>`;
+  }).join('');
+}
+
+function setFilter(cat) {
+  activeFilter = cat;
+  renderCatPills();
+  renderLinks();
+}
+
+// ─── RENDER LINKS ─────────────────────────────────────────────────────────────
+function renderLinks() {
+  const query = document.getElementById('search').value.toLowerCase().trim();
+  const container = document.getElementById('links-container');
+
+  let filtered = links.filter(l => {
+    const matchCat = activeFilter === 'all' || l.category === activeFilter;
+    const matchSearch = !query || l.title.toLowerCase().includes(query) || l.url.toLowerCase().includes(query);
+    return matchCat && matchSearch;
+  });
+
+  // Update count
+  document.getElementById('link-count').textContent = `${links.length} saved`;
+
+  if (!filtered.length) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <span class="empty-emoji">${query ? '🔍' : '📭'}</span>
+        <div class="empty-title">${query ? 'No links found' : 'No links saved yet'}</div>
+        <div class="empty-sub">${query ? 'Try a different search word.' : 'Tap the big red button above\nto save your first link!'}</div>
+      </div>`;
+    return;
+  }
+
+  // Group by category
+  if (activeFilter === 'all' && !query) {
+    const grouped = {};
+    categories.forEach(c => { grouped[c] = []; });
+    filtered.forEach(l => {
+      if (!grouped[l.category]) grouped[l.category] = [];
+      grouped[l.category].push(l);
+    });
+
+    container.innerHTML = Object.entries(grouped)
+      .filter(([, items]) => items.length > 0)
+      .map(([cat, items]) => {
+        const cfg = getCatConfig(cat);
+        return `
+          <div class="links-group">
+            <div class="section-header">
+              <span class="section-emoji">${cfg.emoji}</span>
+              <span class="section-title">${cat}</span>
+              <span class="section-count">${items.length}</span>
+            </div>
+            ${items.map(l => linkCardHTML(l)).join('')}
+          </div>`;
+      }).join('');
+  } else {
+    container.innerHTML = filtered.map(l => linkCardHTML(l)).join('');
+  }
+}
+
+function linkCardHTML(l) {
+  const cfg = getCatConfig(l.category);
+  const displayUrl = l.url.replace(/^https?:\/\/(www\.)?/, '').slice(0, 40) + (l.url.length > 50 ? '…' : '');
+  return `
+    <div class="link-card ${cfg.color}">
+      <div class="link-cat-icon ${cfg.color}">${cfg.emoji}</div>
+      <div class="link-body">
+        <div class="link-title">${escapeHTML(l.title)}</div>
+        <div class="link-url">${escapeHTML(displayUrl)}</div>
+        <div class="link-actions">
+          <a href="${escapeHTML(l.url)}" target="_blank" class="btn-open ${cfg.color}">
+            👆 Open Link
+          </a>
+          <button class="btn-delete" onclick="deleteLink(${l.id})" title="Delete">🗑️</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function escapeHTML(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function deleteLink(id) {
+  links = links.filter(l => l.id !== id);
+  saveData();
+  renderLinks();
+  renderCatPills();
+  showToast('Link removed');
+}
+
+// ─── MODAL ────────────────────────────────────────────────────────────────────
+function openModal() {
+  selectedCat = null;
+  document.getElementById('link-url').value = '';
+  document.getElementById('link-title').value = '';
+  document.getElementById('loading-indicator').classList.remove('show');
+  renderCatGrid();
+  document.getElementById('modal').classList.add('open');
+  setTimeout(() => document.getElementById('link-url').focus(), 300);
+}
+
+function closeModal() { document.getElementById('modal').classList.remove('open'); }
+function closeOnBackdrop(e) { if (e.target === document.getElementById('modal')) closeModal(); }
+
+function renderCatGrid() {
+  const grid = document.getElementById('cat-grid');
+  const catBtns = categories.map(c => {
+    const cfg = getCatConfig(c);
+    const isSelected = selectedCat === c;
+    return `<button class="cat-pick-btn ${isSelected ? 'selected-' + cfg.color : ''}" onclick="selectCat('${c}')">
+      <span class="cat-emoji">${cfg.emoji}</span> ${c}
+    </button>`;
+  }).join('');
+
+  grid.innerHTML = catBtns + `
+    <div class="add-cat-row" style="grid-column:span 2">
+      <input type="text" class="add-cat-input" id="new-cat-input" placeholder="Add a new category…" maxlength="20">
+      <button class="add-cat-btn" onclick="addCategory()">+ Add</button>
+    </div>`;
+}
+
+function selectCat(cat) {
+  selectedCat = cat;
+  renderCatGrid();
+}
+
+function addCategory() {
+  const input = document.getElementById('new-cat-input');
+  const name = input.value.trim();
+  if (!name) return;
+  if (categories.includes(name)) { showToast('Already exists!'); return; }
+  categories.push(name);
+  saveData();
+  input.value = '';
+  selectedCat = name;
+  renderCatGrid();
+  renderCatPills();
+  showToast(`"${name}" category added!`);
+}
+
+// ─── URL TITLE GRABBING ───────────────────────────────────────────────────────
+function onUrlChange() {
+  clearTimeout(urlTimer);
+  const url = document.getElementById('link-url').value.trim();
+  if (!url || !url.startsWith('http')) return;
+
+  // Try to extract a readable name from the URL itself as fallback
+  const guessedTitle = guessTitle(url);
+  if (guessedTitle && !document.getElementById('link-title').value) {
+    document.getElementById('link-title').value = guessedTitle;
+  }
+}
+
+function guessTitle(url) {
+  try {
+    const u = new URL(url);
+    // For facebook, try to get something useful
+    const path = u.pathname.replace(/\//g, ' ').trim();
+    if (path && path !== 'watch' && path.length > 2) {
+      return path.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()).slice(0, 60);
+    }
+    return '';
+  } catch { return ''; }
+}
+
+// ─── SAVE LINK ────────────────────────────────────────────────────────────────
+function saveLink() {
+  const url = document.getElementById('link-url').value.trim();
+  const title = document.getElementById('link-title').value.trim();
+
+  if (!url) { showToast('Please paste a link first!'); return; }
+  if (!title) { showToast('Please give it a name!'); return; }
+  if (!selectedCat) { showToast('Please pick a category!'); return; }
+
+  links.unshift({
+    id: Date.now(),
+    url,
+    title,
+    category: selectedCat,
+    saved: new Date().toISOString()
+  });
+
+  saveData();
+  closeModal();
+  setFilter('all');
+  renderLinks();
+  showToast('✅ Link saved!');
+}
+
+// ─── TOAST ────────────────────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ─── SERVICE WORKER ───────────────────────────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+renderCatPills();
+renderLinks();
+</script>
+</body>
+</html>
